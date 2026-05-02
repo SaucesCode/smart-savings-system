@@ -1,0 +1,18 @@
+import os
+from dotenv import load_dotenv
+from supabase import create_client
+
+load_dotenv()
+
+url = os.environ.get("SUPABASE_URL")
+key = os.environ.get("SUPABASE_ANON_KEY")
+
+supabase = create_client(url, key)
+
+token = "eyJhbGciOiJIUzI1NiIsImtpZCI6IjdmMTgyOWQzLWY2Y2ItNDEzYS1hYTI3LWY2ZjhlNTE3YzAwYSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2hqa3d6cWp5dGprbWxmaXh6ZmRjLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyMDdkMzg2YS00NDQxLTRjOGItYmVmNS1kZjI5NzFkNzBlNzgiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc3NTMyNjE2LCJpYXQiOjE3Nzc1MjkwMTYsImVtYWlsIjoic2F1Y2UxMjE2MDNAZ21haWwuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbCI6InNhdWNlMTIxNjAzQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInN1YiI6IjIwN2QzODZhLTQ0NDEtNGM4Yi1iZWY1LWRmMjk3MWQ3MGU3OCJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6InBhc3N3b3JkIiwidGltZXN0YW1wIjoxNzc3NTI5MDE2fV0sInNlc3Npb25faWQiOiJkZDNiNWE5NC0wMmFkLTQxOWMtYjRiNS1iOGUxYjU0YWUyNzYiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.4njEQmtJPSNZwozjaKIwveeV8d9x50FR24GFtGxB2ec"
+
+try:
+    user = supabase.auth.get_user(token)
+    print("SUCCESS:", user)
+except Exception as e:
+    print("FAILED:", e)

@@ -22,6 +22,9 @@ INSTALLED_APPS = [
     "corsheaders",
     # Local apps
     "users",
+    "wallets",
+    "transactions",
+    "groups"
 ]
 
 MIDDLEWARE = [
@@ -70,7 +73,7 @@ DATABASES = {
 # DRF
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "apps.users.authentication.SupabaseAuthentication",
+        "users.authentication.SupabaseAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",

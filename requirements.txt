@@ -4,4 +4,5 @@ django-cors-headers>=4.3
 python-dotenv>=1.0
 psycopg2-binary>=2.9
 PyJWT>=2.8
-supabase>=2.4          # optional: for server-side Supabase operations
+supabase>=2.4 # optional: for server-side Supabase operations
+drf-nested-routers
