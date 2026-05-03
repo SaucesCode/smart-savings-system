@@ -10,7 +10,7 @@ class TransactionSerializer(serializers.ModelSerializer):
             'amount', 'status', 'reference_number',
             'screenshot_url', 'note', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'user_id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'user_id', 'created_at', 'updated_at', 'wallet']
 
     def update(self, instance, validated_data):
         new_status = validated_data.get('status', instance.status)

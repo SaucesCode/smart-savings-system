@@ -1,5 +1,7 @@
 // src/pages/Dashboard.jsx
+// Navbar removed — Layout/Sidebar handles navigation now.
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getGroups } from "../api/groups";
 import WalletCard from "../components/WalletCard";
@@ -7,7 +9,8 @@ import GroupCard from "../components/GroupCard";
 import RecentTransactions from "../components/RecentTransactions";
 
 export default function Dashboard() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [groups, setGroups] = useState([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
 
@@ -22,106 +25,78 @@ export default function Dashboard() {
     user?.user_metadata?.full_name?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "there";
 
   return (
-    <div className="min-h-screen bg-[#F8F7FF] font-sans">
-      {/* ── Navbar ──────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">💰</span>
-            <span className="text-lg font-extrabold text-violet">SmartSave</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400 hidden sm:block">{user?.email}</span>
-            <button
-              onClick={signOut}
-              className="text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 transition-colors"
-            >
-              Sign out
-            </button>
-          </div>
+    <main className="max-w-5xl mx-auto px-6 py-8 pb-16 space-y-8">
+      {/* Greeting */}
+      <div>
+        <h1 className="text-2xl font-extrabold text-gray-800">
+          Good {getTimeOfDay()}, <span className="text-violet">{displayName} 👋</span>
+        </h1>
+        <p className="text-sm text-gray-400 mt-1">Here's your savings overview.</p>
+      </div>
+
+      {/* Top row: Wallet + Quick Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <WalletCard />
+        <div className="flex flex-col gap-3">
+          <QuickStatCard
+            emoji="🏦"
+            label="Active Groups"
+            value={groups.length}
+            color="text-violet"
+            bg="bg-violet/10"
+          />
+          <QuickStatCard
+            emoji="✅"
+            label="Confirmed"
+            value="—"
+            color="text-emerald-600"
+            bg="bg-emerald-50"
+          />
+          <QuickStatCard
+            emoji="⏳"
+            label="Pending"
+            value="—"
+            color="text-amber-500"
+            bg="bg-amber-50"
+          />
         </div>
-      </nav>
+      </div>
 
-      {/* ── Main content ────────────────────────────────── */}
-      <main className="max-w-5xl mx-auto px-6 py-8 pb-16 space-y-8">
-        {/* Greeting */}
-        <div>
-          <h1 className="text-2xl font-extrabold text-gray-800">
-            Good {getTimeOfDay()}, <span className="text-violet">{displayName} 👋</span>
-          </h1>
-          <p className="text-sm text-gray-400 mt-1">Here's your savings overview.</p>
-        </div>
+      {/* Recent Transactions */}
+      <RecentTransactions onSeeAll={() => navigate("/transactions")} />
 
-        {/* ── Top row: Wallet + Quick Stats ───────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <WalletCard />
-
-          <div className="flex flex-col gap-3">
-            <QuickStatCard
-              emoji="🏦"
-              label="Active Groups"
-              value={groups.length}
-              color="text-violet"
-              bg="bg-violet/10"
-            />
-            <QuickStatCard
-              emoji="✅"
-              label="Confirmed"
-              value="—"
-              color="text-emerald-600"
-              bg="bg-emerald-50"
-            />
-            <QuickStatCard
-              emoji="⏳"
-              label="Pending"
-              value="—"
-              color="text-amber-500"
-              bg="bg-amber-50"
-            />
-          </div>
+      {/* Groups */}
+      <section>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-bold text-gray-800">My Groups</h2>
+          <button
+            onClick={() => navigate("/groups")}
+            className="text-sm font-semibold bg-violet text-white px-4 py-2 rounded-xl hover:bg-violet-dark transition-colors"
+          >
+            + New Group
+          </button>
         </div>
 
-        {/* ── Recent Transactions ─────────────────────── */}
-        <RecentTransactions
-          onSeeAll={() => {
-            /* navigate to /transactions */
-          }}
-        />
-
-        {/* ── Groups ──────────────────────────────────── */}
-        <section>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold text-gray-800">My Groups</h2>
-            <button className="text-sm font-semibold bg-violet text-white px-4 py-2 rounded-xl hover:bg-violet-dark transition-colors">
-              + New Group
-            </button>
+        {loadingGroups ? (
+          <GroupsSkeleton />
+        ) : groups.length === 0 ? (
+          <EmptyGroups />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {groups.map((g, i) => (
+              <GroupCard
+                key={g.id}
+                group={g}
+                index={i}
+                onClick={() => navigate(`/groups/${g.id}`)}
+              />
+            ))}
           </div>
-
-          {loadingGroups ? (
-            <GroupsSkeleton />
-          ) : groups.length === 0 ? (
-            <EmptyGroups />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {groups.map((g, i) => (
-                <GroupCard
-                  key={g.id}
-                  group={g}
-                  index={i}
-                  onClick={() => {
-                    /* navigate to /groups/:id */
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-      </main>
-    </div>
+        )}
+      </section>
+    </main>
   );
 }
-
-// ── Sub-components ────────────────────────────────────────────────────────────
 
 function QuickStatCard({ emoji, label, value, color, bg }) {
   return (

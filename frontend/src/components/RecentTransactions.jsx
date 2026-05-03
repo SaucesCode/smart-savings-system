@@ -1,23 +1,42 @@
 // src/components/RecentTransactions.jsx
 import { useEffect, useState } from "react";
 import { getTransactions } from "../api/transactions";
+import {
+  ArrowDownCircle,
+  ArrowUpCircle,
+  Handshake,
+  CreditCard,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Receipt,
+} from "lucide-react";
 
 const TYPE_META = {
-  deposit: { emoji: "⬇️", label: "Deposit", color: "bg-emerald-100" },
-  withdrawal: { emoji: "⬆️", label: "Withdrawal", color: "bg-red-100" },
-  contribution: { emoji: "🤝", label: "Contribution", color: "bg-violet/10" },
+  deposit: {
+    Icon: ArrowDownCircle,
+    label: "Deposit",
+    iconCls: "text-emerald-600",
+    bgCls: "bg-emerald-50",
+  },
+  withdrawal: {
+    Icon: ArrowUpCircle,
+    label: "Withdrawal",
+    iconCls: "text-red-500",
+    bgCls: "bg-red-50",
+  },
+  contribution: {
+    Icon: Handshake,
+    label: "Contribution",
+    iconCls: "text-violet",
+    bgCls: "bg-violet/10",
+  },
 };
 
-const STATUS_STYLES = {
-  pending: "bg-amber-100   text-amber-800",
-  confirmed: "bg-emerald-100 text-emerald-800",
-  rejected: "bg-red-100     text-red-800",
-};
-
-const STATUS_DOT = {
-  pending: "bg-amber-400",
-  confirmed: "bg-emerald-500",
-  rejected: "bg-red-500",
+const STATUS_META = {
+  pending: { Icon: Clock, cls: "bg-amber-100 text-amber-700" },
+  confirmed: { Icon: CheckCircle2, cls: "bg-emerald-100 text-emerald-700" },
+  rejected: { Icon: XCircle, cls: "bg-red-100 text-red-700" },
 };
 
 export default function RecentTransactions({ onSeeAll }) {
@@ -34,7 +53,6 @@ export default function RecentTransactions({ onSeeAll }) {
 
   return (
     <div className="rounded-2xl p-6 bg-white shadow-card">
-      {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-base font-bold text-gray-800">Recent Transactions</h3>
         <button
@@ -45,21 +63,17 @@ export default function RecentTransactions({ onSeeAll }) {
         </button>
       </div>
 
-      {/* Loading */}
       {loading && <SkeletonRows />}
 
-      {/* Error */}
-      {error && <p className="text-sm text-red-600 py-3">{error}</p>}
+      {error && <p className="text-sm text-red-500 py-3">{error}</p>}
 
-      {/* Empty */}
       {!loading && !error && transactions.length === 0 && (
-        <div className="text-center py-10 text-gray-400">
-          <span className="text-4xl">🧾</span>
-          <p className="mt-2 text-sm">No transactions yet.</p>
+        <div className="text-center py-10 text-gray-400 space-y-2">
+          <Receipt size={36} className="mx-auto opacity-40" />
+          <p className="text-sm">No transactions yet.</p>
         </div>
       )}
 
-      {/* Rows */}
       {!loading &&
         !error &&
         transactions.map((tx, i) => (
@@ -69,25 +83,27 @@ export default function RecentTransactions({ onSeeAll }) {
   );
 }
 
-function TransactionRow({ tx, isLast }) {
+export function TransactionRow({ tx, isLast }) {
   const meta = TYPE_META[tx.transaction_type] ?? {
-    emoji: "💳",
+    Icon: CreditCard,
     label: tx.transaction_type,
-    color: "bg-gray-100",
+    iconCls: "text-gray-400",
+    bgCls: "bg-gray-100",
   };
-  const statusCls = STATUS_STYLES[tx.status] ?? STATUS_STYLES.pending;
-  const dotCls = STATUS_DOT[tx.status] ?? STATUS_DOT.pending;
+  const statusMeta = STATUS_META[tx.status] ?? STATUS_META.pending;
   const isCredit = tx.transaction_type === "deposit";
+  const { Icon: TxIcon } = meta;
+  const { Icon: StatusIcon } = statusMeta;
 
   return (
     <div
       className={`flex items-center gap-3 py-3 ${!isLast ? "border-b border-gray-100" : ""}`}
     >
-      {/* Icon */}
+      {/* Type icon */}
       <div
-        className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 text-lg ${meta.color}`}
+        className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${meta.bgCls}`}
       >
-        {meta.emoji}
+        <TxIcon size={20} className={meta.iconCls} strokeWidth={2} />
       </div>
 
       {/* Info */}
@@ -103,16 +119,16 @@ function TransactionRow({ tx, isLast }) {
         </p>
       </div>
 
-      {/* Amount + badge */}
+      {/* Amount + status */}
       <div className="text-right flex-shrink-0">
-        <p className={`text-sm font-bold ${isCredit ? "text-emerald-600" : "text-red-600"}`}>
+        <p className={`text-sm font-bold ${isCredit ? "text-emerald-600" : "text-red-500"}`}>
           {isCredit ? "+" : "-"}₱
           {Number(tx.amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })}
         </p>
         <span
-          className={`inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-2 py-0.5 mt-1 ${statusCls}`}
+          className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full px-2 py-0.5 mt-1 ${statusMeta.cls}`}
         >
-          <span className={`w-1.5 h-1.5 rounded-full ${dotCls}`} />
+          <StatusIcon size={11} strokeWidth={2.5} />
           {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
         </span>
       </div>
