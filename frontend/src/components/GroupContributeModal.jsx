@@ -160,7 +160,14 @@ export default function GroupContributeModal({ isOpen, onClose, onSuccess, group
             />
           )}
           {step === STEP_QR && (
-            <StepQR amount={amount} groupName={group.name} onNext={() => setStep(STEP_REF)} />
+            <StepQR
+              amount={amount}
+              groupName={group.name}
+              gcashNumber={group.gcash_number || "Not set"}
+              gcashName={group.gcash_name || "Not set"}
+              gcashQrUrl={group.gcash_qr_url || ""}
+              onNext={() => setStep(STEP_REF)}
+            />
           )}
           {step === STEP_REF && (
             <StepReference
@@ -299,11 +306,11 @@ function StepAmount({ amount, setAmount, error, onNext, remaining }) {
 
 // ── Step 2: QR ────────────────────────────────────────────────────────────────
 
-function StepQR({ amount, groupName, onNext }) {
+function StepQR({ amount, groupName, gcashNumber, gcashName, gcashQrUrl, onNext }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(GCASH_NUMBER.replace(/\s/g, ""));
+    navigator.clipboard.writeText(gcashNumber.replace(/\s/g, ""));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -319,17 +326,25 @@ function StepQR({ amount, groupName, onNext }) {
       </div>
 
       {/* QR placeholder */}
-      <div className="mx-auto w-48 h-48 bg-gray-50 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-gray-200">
-        <Smartphone size={40} className="text-gray-300" />
-        <p className="text-xs text-gray-400 mt-2 font-medium">GCash QR Code</p>
-        <p className="text-xs text-gray-300 mt-1">Replace with real QR image</p>
-      </div>
+      {gcashQrUrl ? (
+        <img
+          src={gcashQrUrl}
+          alt="GCash QR Code"
+          className="mx-auto w-48 h-48 object-contain rounded-2xl border border-gray-100"
+        />
+      ) : (
+        <div className="mx-auto w-48 h-48 bg-gray-50 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-gray-200">
+          <Smartphone size={40} className="text-gray-300" />
+          <p className="text-xs text-gray-400 mt-2 font-medium">No QR set</p>
+          <p className="text-xs text-gray-300 mt-1">Ask your group admin to add one</p>
+        </div>
+      )}
 
       <div className="bg-gray-50 rounded-xl px-5 py-4 space-y-3 text-left">
-        <DetailRow label="Account Name" value={GCASH_NAME} />
+        <DetailRow label="Account Name" value={gcashName} />
         <DetailRow
           label="Account Number"
-          value={GCASH_NUMBER}
+          value={gcashNumber}
           action={
             <button
               onClick={handleCopy}
