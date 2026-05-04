@@ -7,6 +7,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getGroups, getGroupTransactions, updateGroupTransactionStatus } from "../api/groups";
 import GroupContributeModal from "../components/GroupContributeModal";
+import GroupGCashEditor from "../components/GroupGCashEditor";
+
 import {
   ArrowLeft,
   Users,
@@ -41,6 +43,8 @@ export default function GroupDetailPage() {
   const [contributeOpen, setContributeOpen] = useState(false);
   const [page, setPage] = useState(1);
   const PER_PAGE = 8;
+
+  console.log(group)
 
   // ── Fetch group ────────────────────────────────────────────────────────────
   const fetchGroup = useCallback(() => {
@@ -78,8 +82,8 @@ export default function GroupDetailPage() {
   const myMembership = group?.members?.find(m => m.user_id === user?.id);
   const isAdmin = myMembership?.role === "admin";
   const progress =
-    group?.goal_amount && group.goal_amount > 0
-      ? Math.min((group.current_balance / group.goal_amount) * 100, 100)
+    group?.savings_goal && group.savings_goal > 0
+      ? Math.min((group.total_saved / group.savings_goal) * 100, 100)
       : null;
 
   const totalPages = Math.ceil(transactions.length / PER_PAGE);
@@ -152,7 +156,7 @@ export default function GroupDetailPage() {
 
           <p className="text-4xl font-extrabold tracking-tight mt-4 relative">
             ₱
-            {Number(group.current_balance).toLocaleString("en-PH", {
+            {Number(group.total_saved).toLocaleString("en-PH", {
               minimumFractionDigits: 2,
             })}
           </p>
@@ -210,11 +214,9 @@ export default function GroupDetailPage() {
           <Users size={16} className="text-teal" /> Members
         </h2>
         <div className="space-y-3">
-          {group.members
-            ?.filter(m => m.is_active)
-            .map(member => (
-              <MemberRow key={member.id} member={member} currentUserId={user?.id} />
-            ))}
+          {group.members?.map(member => (
+            <MemberRow key={member.id} member={member} currentUserId={user?.id} />
+          ))}
         </div>
       </section>
 
@@ -277,6 +279,14 @@ export default function GroupDetailPage() {
         )}
       </section>
 
+      {group && (
+        <GroupGCashEditor
+          group={group}
+          isAdmin={isAdmin}
+          onUpdated={updated => setGroup(updated)}
+        />
+      )}
+
       {/* Contribute modal */}
       <GroupContributeModal
         isOpen={contributeOpen}
@@ -314,7 +324,7 @@ function MemberRow({ member, currentUserId }) {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-gray-800 truncate">
-          {isMe ? "You" : `Member ${member.user_id.toString().slice(0, 8)}…`}
+          {isMe ? "You" : member.name || `User ${member.name}`}
         </p>
         <p className="text-xs text-gray-400">
           Joined{" "}

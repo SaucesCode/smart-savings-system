@@ -1,4 +1,6 @@
 from django.urls import path
+from .views import ProfileView
 
-# Auth routes will go here
-urlpatterns = []
+urlpatterns = [
+    path('profile/', ProfileView.as_view(), name='profile'),
+]

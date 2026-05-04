@@ -29,8 +29,9 @@ export default function GroupsPage() {
   }, []);
 
   // ── Derived stats ──────────────────────────────────────────────────────────
-  const totalSaved = groups.reduce((sum, g) => sum + parseFloat(g.current_balance || 0), 0);
-  const totalGoal = groups.reduce((sum, g) => sum + parseFloat(g.goal_amount || 0), 0);
+const totalSaved = groups.reduce((sum, g) => sum + Number(g.total_saved || 0), 0);
+
+const totalGoal = groups.reduce((sum, g) => sum + Number(g.savings_goal || 0), 0);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
   const handleCreated = newGroup => {

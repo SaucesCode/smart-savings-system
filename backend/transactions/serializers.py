@@ -2,31 +2,40 @@ from rest_framework import serializers
 from .models import Transaction
 from wallets.models import Wallet
 
+
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = [
-            'id', 'user_id', 'wallet', 'transaction_type',
-            'amount', 'status', 'reference_number',
-            'screenshot_url', 'note', 'created_at', 'updated_at'
+            'id', 'wallet', 'user_id', 'type', 'amount',
+            'gcash_reference', 'gcash_screenshot_url',
+            'status', 'note', 'created_at', 'updated_at',
         ]
-        read_only_fields = ['id', 'user_id', 'created_at', 'updated_at', 'wallet']
+        read_only_fields = [
+            'id', 'user_id', 'wallet', 'status',  # ← status is now always set server-side
+            'created_at', 'updated_at',
+        ]
 
-    def update(self, instance, validated_data):
-        new_status = validated_data.get('status', instance.status)
-        previously_confirmed = instance.status == Transaction.Status.CONFIRMED
+    def create(self, validated_data):
+        user_id = self.context['request'].user  # Supabase UID string
 
-        instance = super().update(instance, validated_data)
+        # Get or create the user's wallet
+        wallet, _ = Wallet.objects.get_or_create(user_id=user_id)
 
-        # Only update balance when status first becomes confirmed
-        if new_status == Transaction.Status.CONFIRMED and not previously_confirmed:
-            wallet = instance.wallet
-            if instance.transaction_type == Transaction.TransactionType.DEPOSIT:
-                wallet.balance += instance.amount
-            elif instance.transaction_type == Transaction.TransactionType.WITHDRAWAL:
-                wallet.balance -= instance.amount
-            elif instance.transaction_type == Transaction.TransactionType.CONTRIBUTION:
-                wallet.balance -= instance.amount
-            wallet.save()
+        validated_data['wallet'] = wallet
+        validated_data['user_id'] = user_id
+        validated_data['status'] = 'confirmed'  # ← always auto-confirm personal transactions
 
-        return instance
+        transaction = Transaction.objects.create(**validated_data)
+
+        # Update wallet balance immediately
+        if transaction.type == 'deposit':
+            wallet.balance += transaction.amount
+        elif transaction.type == 'withdrawal':
+            if wallet.balance < transaction.amount:
+                transaction.delete()
+                raise serializers.ValidationError("Insufficient balance.")
+            wallet.balance -= transaction.amount
+
+        wallet.save()
+        return transaction

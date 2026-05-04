@@ -43,7 +43,21 @@ export default function GroupCard({ group, index = 0, onClick }) {
       </div>
 
       {/* Name */}
-      <p className="text-lg font-extrabold tracking-tight relative">{group.name}</p>
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="font-bold text-gray-800 truncate">{group.name}</h3>
+
+        {group.invite_code && (
+          <span
+            onClick={() => {
+              navigator.clipboard.writeText(group.invite_code);
+              alert("Invite code copied!");
+            }}
+            className="cursor-pointer text-[10px] font-mono bg-gray-100 hover:bg-gray-200 text-gray-500 px-2 py-1 rounded-lg"
+          >
+            #{group.invite_code}
+          </span>
+        )}
+      </div>
 
       {/* Description */}
       {group.description && (
@@ -52,7 +66,7 @@ export default function GroupCard({ group, index = 0, onClick }) {
 
       {/* Balance */}
       <p className="text-3xl font-extrabold mt-3 tracking-tight relative">
-        ₱{Number(group.current_balance).toLocaleString("en-PH", { minimumFractionDigits: 2 })}
+        ₱ {Number(group.total_saved).toLocaleString("en-PH", { minimumFractionDigits: 2 })}
       </p>
 
       {/* Progress toward goal */}

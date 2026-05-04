@@ -15,7 +15,6 @@ class GroupViewSet(viewsets.ModelViewSet):
         # Only return groups the user is an active member of
         return Group.objects.filter(
             members__user_id=self.request.user.id,
-            members__is_active=True
         )
 
     def perform_create(self, serializer):
@@ -24,7 +23,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         GroupMember.objects.create(
             group=group,
             user_id=self.request.user.id,
-            role=GroupMember.Role.ADMIN
+            role='admin'
         )
 
     @action(detail=True, methods=['post'])
@@ -34,13 +33,65 @@ class GroupViewSet(viewsets.ModelViewSet):
         member, created = GroupMember.objects.get_or_create(
             group=group,
             user_id=request.user.id,
-            defaults={'role': GroupMember.Role.MEMBER}
+                defaults={
+                    'role': 'member',
+                    'name': request.user.name
+                }
         )
-        if not created and member.is_active:
+        if not created:
             raise ValidationError("You are already a member of this group.")
-        member.is_active = True
         member.save()
         return Response(GroupMemberSerializer(member).data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['post'], url_path='join-by-code')
+    def join_by_code(self, request):
+        code = request.data.get('invite_code')
+
+        if not code:
+            raise ValidationError("Invite code is required.")
+
+        try:
+            group = Group.objects.get(invite_code=code)
+        except Group.DoesNotExist:
+            raise ValidationError("Invalid invite code.")
+
+        member, created = GroupMember.objects.get_or_create(
+            group=group,
+            user_id=request.user.id,
+                defaults={
+                    'role': 'member',
+                    'name': request.user.name
+                }
+        )
+
+        if not created:
+            raise ValidationError("You are already a member of this group.")
+
+        return Response(GroupMemberSerializer(member).data, status=200)
+    
+    @action(detail=True, methods=['patch'], url_path='gcash')
+    def update_gcash(self, request, pk=None):
+        """Group admin only — update GCash details for this group."""
+        group = self.get_object()
+
+        # Check if requester is an admin of this group
+        is_admin = GroupMember.objects.filter(
+            group=group,
+            user_id=request.user.id,
+            role=GroupMember.Role.ADMIN,
+        ).exists()
+
+        if not is_admin:
+            raise PermissionDenied("Only group admins can update GCash details.")
+
+        allowed_fields = {'gcash_number', 'gcash_name', 'gcash_qr_url'}
+        data = {k: v for k, v in request.data.items() if k in allowed_fields}
+
+        for field, value in data.items():
+            setattr(group, field, value)
+        group.save()
+
+        return Response(GroupSerializer(group).data)
 
 
 class GroupTransactionViewSet(viewsets.ModelViewSet):
@@ -53,7 +104,6 @@ class GroupTransactionViewSet(viewsets.ModelViewSet):
             return GroupMember.objects.get(
                 group_id=group_id,
                 user_id=self.request.user.id,
-                is_active=True
             )
         except GroupMember.DoesNotExist:
             raise PermissionDenied("You are not a member of this group.")

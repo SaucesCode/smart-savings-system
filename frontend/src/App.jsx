@@ -5,7 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import "./index.css"
 
-// Pages
+// Pages  
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import WalletPage from "./pages/WalletPage";

@@ -13,6 +13,7 @@ import { getWallet, updateSavingsGoal } from "../api/wallet";
 import { getTransactions } from "../api/transactions";
 import GCashDepositModal from "../components/GCashDepositModal";
 import WithdrawalModal from "../components/WithdrawalModal";
+import GCashDetailsEditor from "../components/GCashDetailsEditor";
 
 export default function WalletPage() {
   const [wallet, setWallet] = useState(null);
@@ -83,6 +84,7 @@ export default function WalletPage() {
         onSuccess={handleWithdrawalSuccess}
         walletBalance={wallet?.balance ?? 0}
       />
+      <GCashDetailsEditor />
     </main>
   );
 }

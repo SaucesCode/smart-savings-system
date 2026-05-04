@@ -9,14 +9,17 @@
 
 import { useState } from "react";
 import { createGroup } from "../api/groups";
-import { X, Users, Target, Calendar, FileText, AlertCircle } from "lucide-react";
+import { X, Users, Target, Calendar, FileText, AlertCircle, Smartphone } from "lucide-react";
 
 export default function CreateGroupModal({ isOpen, onClose, onSuccess }) {
   const [form, setForm] = useState({
     name: "",
     description: "",
-    goal_amount: "",
+    savings_goal: "",
     target_date: "",
+    gcash_number: "",
+    gcash_name: "",
+    gcash_qr_url: "",
   });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -32,11 +35,11 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess }) {
     const newErrors = {};
     if (!form.name.trim()) newErrors.name = "Group name is required.";
     if (form.name.trim().length > 100) newErrors.name = "Name must be under 100 characters.";
-    if (form.goal_amount && isNaN(parseFloat(form.goal_amount))) {
-      newErrors.goal_amount = "Goal must be a valid number.";
+    if (form.savings_goal && isNaN(parseFloat(form.savings_goal))) {
+      newErrors.savings_goal = "Goal must be a valid number.";
     }
-    if (form.goal_amount && parseFloat(form.goal_amount) <= 0) {
-      newErrors.goal_amount = "Goal must be greater than ₱0.";
+    if (form.savings_goal && parseFloat(form.savings_goal) <= 0) {
+      newErrors.savings_goal = "Goal must be greater than ₱0.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -49,9 +52,13 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess }) {
       const payload = {
         name: form.name.trim(),
         description: form.description.trim(),
-        ...(form.goal_amount && { goal_amount: parseFloat(form.goal_amount) }),
+        ...(form.savings_goal && { savings_goal: parseFloat(form.savings_goal) }),
         ...(form.target_date && { target_date: form.target_date }),
+        gcash_number: form.gcash_number.trim(),
+        gcash_name: form.gcash_name.trim(),
+        gcash_qr_url: form.gcash_qr_url.trim(),
       };
+      console.log(payload)
       const group = await createGroup(payload);
       onSuccess(group);
       handleClose();
@@ -63,7 +70,15 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess }) {
   };
 
   const handleClose = () => {
-    setForm({ name: "", description: "", goal_amount: "", target_date: "" });
+    setForm({
+      name: "",
+      description: "",
+      savings_goal: "",
+      target_date: "",
+      gcash_number: "",
+      gcash_name: "",
+      gcash_qr_url: "",
+    });
     setErrors({});
     setSubmitting(false);
     onClose();
@@ -138,20 +153,20 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess }) {
               </label>
               <div
                 className={`flex items-center gap-1.5 border rounded-xl px-3 py-2.5 transition focus-within:ring-2 focus-within:ring-violet/40 focus-within:border-violet
-                ${errors.goal_amount ? "border-red-300" : "border-gray-200"}`}
+                ${errors.savings_goal ? "border-red-300" : "border-gray-200"}`}
               >
                 <span className="text-gray-400 text-sm font-semibold">₱</span>
                 <input
                   type="number"
                   min="1"
                   step="0.01"
-                  value={form.goal_amount}
-                  onChange={set("goal_amount")}
+                  value={form.savings_goal}
+                  onChange={set("savings_goal")}
                   placeholder="0.00"
                   className="flex-1 text-sm font-bold text-gray-800 outline-none bg-transparent w-0"
                 />
               </div>
-              {errors.goal_amount && <FieldError message={errors.goal_amount} />}
+              {errors.savings_goal && <FieldError message={errors.savings_goal} />}
             </div>
 
             <div>
@@ -176,6 +191,46 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess }) {
             💡 You'll be added as <span className="font-bold text-gray-600">Admin</span>{" "}
             automatically. Admins can verify contributions and manage members.
           </p>
+
+          {/* GCash Payment Details */}
+          <div className="space-y-3">
+            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              <span className="flex items-center gap-1.5">
+                <Smartphone size={12} />
+                GCash Payment Details
+                <span className="text-gray-300 font-normal normal-case">
+                  (optional — can set later)
+                </span>
+              </span>
+            </label>
+
+            {/* Number + Name row */}
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                type="text"
+                value={form.gcash_number}
+                onChange={set("gcash_number")}
+                placeholder="09XX XXX XXXX"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet/40 focus:border-violet transition"
+              />
+              <input
+                type="text"
+                value={form.gcash_name}
+                onChange={set("gcash_name")}
+                placeholder="Account name"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet/40 focus:border-violet transition"
+              />
+            </div>
+
+            {/* QR URL */}
+            <input
+              type="url"
+              value={form.gcash_qr_url}
+              onChange={set("gcash_qr_url")}
+              placeholder="QR code image URL (optional)"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet/40 focus:border-violet transition"
+            />
+          </div>
 
           {errors.submit && (
             <div className="flex items-center gap-2 text-xs text-red-600 bg-red-50 rounded-xl px-4 py-3">

@@ -7,6 +7,7 @@ import client from "./client";
  */
 export const getGroups = async () => {
   const { data } = await client.get("/api/groups/");
+  console.log(data.results);
   return Array.isArray(data) ? data : (data.results ?? []);
 };
 
@@ -27,6 +28,19 @@ export const createGroup = async payload => {
  */
 export const joinGroup = async groupId => {
   const { data } = await client.post(`/api/groups/${groupId}/join/`);
+  return data;
+};
+
+
+/**
+ * Join a group using invite code.
+ * Maps to POST /api/groups/join-by-code/
+ * @param {string} code
+ */
+export const joinGroupByCode = async code => {
+  const { data } = await client.post("/api/groups/join-by-code/", {
+    invite_code: code,
+  });
   return data;
 };
 
@@ -65,3 +79,6 @@ export const updateGroupTransactionStatus = async (groupId, transactionId, statu
   );
   return data;
 };
+
+export const updateGroupGCash = (groupId, data) =>
+  client.patch(`/api/groups/${groupId}/gcash/`, data).then(r => r.data);

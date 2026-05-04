@@ -8,7 +8,7 @@
 //   onSuccess — called after successfully joining
 
 import { useState } from "react";
-import { joinGroup, getGroups } from "../api/groups";
+import { joinGroupByCode, getGroups } from "../api/groups";
 import { X, UserPlus, Hash, AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function JoinGroupModal({ isOpen, onClose, onSuccess }) {
@@ -25,14 +25,14 @@ export default function JoinGroupModal({ isOpen, onClose, onSuccess }) {
       setError("Please enter a group ID.");
       return;
     }
-    if (isNaN(Number(id)) || Number(id) <= 0) {
-      setError("Group ID must be a positive number.");
+    if (!/^[a-zA-Z0-9]+$/.test(id)) {
+      setError("Invalid invite code format.");
       return;
     }
     setError(null);
     setSubmitting(true);
     try {
-      const member = await joinGroup(id);
+      const member = await joinGroupByCode(id);
       // Fetch the group name to show in the success message
       const groups = await getGroups();
       const joined = groups.find(g => g.id === member.group);
@@ -110,7 +110,7 @@ export default function JoinGroupModal({ isOpen, onClose, onSuccess }) {
                 >
                   <Hash size={16} className="text-gray-400 flex-shrink-0" />
                   <input
-                    type="number"
+                    type="text"
                     min="1"
                     value={groupId}
                     onChange={e => {
@@ -120,7 +120,7 @@ export default function JoinGroupModal({ isOpen, onClose, onSuccess }) {
                     onKeyDown={e => {
                       if (e.key === "Enter") handleJoin();
                     }}
-                    placeholder="e.g. 42"
+                    placeholder="e.g. 9aa42ec3"
                     className="flex-1 text-base font-bold text-gray-800 outline-none bg-transparent"
                     autoFocus
                   />
