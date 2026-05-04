@@ -1,13 +1,22 @@
 // src/components/Sidebar.jsx
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { LayoutDashboard, Wallet, Users, ArrowLeftRight, LogOut, Coins } from "lucide-react";
+import {
+  LayoutDashboard,
+  Wallet,
+  Users,
+  ArrowLeftRight,
+  BarChart2,
+  LogOut,
+  Coins,
+} from "lucide-react";
 
 const NAV_LINKS = [
   { to: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
   { to: "/wallet", label: "Wallet", Icon: Wallet },
   { to: "/groups", label: "Groups", Icon: Users },
   { to: "/transactions", label: "Transactions", Icon: ArrowLeftRight },
+  { to: "/analytics", label: "Analytics", Icon: BarChart2 },
 ];
 
 export default function Sidebar() {
