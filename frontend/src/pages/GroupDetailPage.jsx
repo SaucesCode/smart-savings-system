@@ -44,7 +44,6 @@ export default function GroupDetailPage() {
   const [page, setPage] = useState(1);
   const PER_PAGE = 8;
 
-  console.log(group)
 
   // ── Fetch group ────────────────────────────────────────────────────────────
   const fetchGroup = useCallback(() => {

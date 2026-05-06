@@ -58,7 +58,6 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess }) {
         gcash_name: form.gcash_name.trim(),
         gcash_qr_url: form.gcash_qr_url.trim(),
       };
-      console.log(payload)
       const group = await createGroup(payload);
       onSuccess(group);
       handleClose();

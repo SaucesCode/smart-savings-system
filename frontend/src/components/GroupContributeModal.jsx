@@ -38,6 +38,7 @@ export default function GroupContributeModal({ isOpen, onClose, onSuccess, group
   const [step, setStep] = useState(STEP_AMOUNT);
   const [amount, setAmount] = useState("");
   const [refNumber, setRefNumber] = useState("");
+  const [screenshotUrl, setScreenshotUrl] = useState("");
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
@@ -73,9 +74,11 @@ export default function GroupContributeModal({ isOpen, onClose, onSuccess, group
     try {
       const tx = await createGroupTransaction(group.id, {
         amount: parseFloat(amount),
-        reference_number: refNumber.trim(),
+        gcash_reference: refNumber.trim(),
+        gcash_screenshot_url: screenshotUrl.trim(),
         note: note.trim(),
       });
+      console.log(tx);
       onSuccess(tx);
       handleClose();
     } catch (err) {
@@ -89,6 +92,7 @@ export default function GroupContributeModal({ isOpen, onClose, onSuccess, group
     setStep(STEP_AMOUNT);
     setAmount("");
     setRefNumber("");
+    setScreenshotUrl("");
     setNote("");
     setErrors({});
     setSubmitting(false);
@@ -175,6 +179,8 @@ export default function GroupContributeModal({ isOpen, onClose, onSuccess, group
               groupName={group.name}
               refNumber={refNumber}
               setRefNumber={setRefNumber}
+              screenshotUrl={screenshotUrl}
+              setScreenshotUrl={setScreenshotUrl}
               note={note}
               setNote={setNote}
               errors={errors}
@@ -395,6 +401,8 @@ function StepReference({
   groupName,
   refNumber,
   setRefNumber,
+  screenshotUrl,
+  setScreenshotUrl,
   note,
   setNote,
   errors,
@@ -435,6 +443,23 @@ function StepReference({
         )}
         <p className="text-xs text-gray-400 mt-1.5">
           Found in your GCash transaction history after sending.
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          Screenshot URL{" "}
+          <span className="text-gray-300 font-normal normal-case">(optional)</span>
+        </label>
+        <input
+          type="url"
+          value={screenshotUrl}
+          onChange={e => setScreenshotUrl(e.target.value)}
+          placeholder="https://... (link to your GCash screenshot)"
+          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal/40 focus:border-teal transition"
+        />
+        <p className="text-xs text-gray-400 mt-1.5">
+          Upload your screenshot to Google Drive, Imgur, etc. and paste the link here.
         </p>
       </div>
 

@@ -7,7 +7,6 @@ import client from "./client";
  */
 export const getGroups = async () => {
   const { data } = await client.get("/api/groups/");
-  console.log(data.results);
   return Array.isArray(data) ? data : (data.results ?? []);
 };
 
@@ -58,7 +57,7 @@ export const getGroupTransactions = async groupId => {
  * Submit a contribution to a group (starts as Pending).
  * Maps to POST /api/groups/:id/transactions/
  * @param {number|string} groupId
- * @param {{ amount: number, reference_number?: string, screenshot_url?: string, note?: string }} payload
+ * @param {{ amount: number, gcash_reference?: string, screenshot_url?: string, note?: string }} payload
  */
 export const createGroupTransaction = async (groupId, payload) => {
   const { data } = await client.post(`/api/groups/${groupId}/transactions/`, payload);
