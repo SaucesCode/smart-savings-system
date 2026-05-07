@@ -81,3 +81,6 @@ export const updateGroupTransactionStatus = async (groupId, transactionId, statu
 
 export const updateGroupGCash = (groupId, data) =>
   client.patch(`/api/groups/${groupId}/gcash/`, data).then(r => r.data);
+
+export const getPendingAdminTransactions = () =>
+  client.get("/api/group-transactions-admin/pending/").then(r => r.data);

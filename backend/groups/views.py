@@ -124,7 +124,27 @@ class GroupTransactionViewSet(viewsets.ModelViewSet):
         membership = self._get_membership(instance.group_id)
 
         # Only admins can change transaction status
-        if 'status' in request.data and membership.role != GroupMember.Role.ADMIN:
+        if 'status' in request.data and membership.role != 'admin':
             raise PermissionDenied("Only group admins can verify transactions.")
 
         return super().update(request, *args, **kwargs)
+    
+
+class GroupTransactionAdminViewSet(viewsets.ViewSet):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=False, methods=['get'], url_path='pending')
+    def pending(self, request):
+        admin_group_ids = GroupMember.objects.filter(
+            user_id=request.user.id,
+            role='admin'
+        ).values_list('group_id', flat=True)
+
+        pending = GroupTransaction.objects.filter(
+            group_id__in=admin_group_ids,
+            status='pending'
+        )
+
+        serializer = GroupTransactionSerializer(pending, many=True)
+        return Response(serializer.data)

@@ -3,17 +3,16 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
-import "./index.css"
+import "./index.css";
 
-// Pages  
+// Pages
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import WalletPage from "./pages/WalletPage";
 import GroupsPage from "./pages/GroupPage";
 import GroupDetailPage from "./pages/GroupDetailPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
-// Future:
-// import TransactionsPage from './pages/TransactionsPage';
+import TransactionsPage from "./pages/TransactionsPage";
 
 export default function App() {
   return (
@@ -31,7 +30,7 @@ export default function App() {
               <Route path="/groups" element={<GroupsPage />} />
               <Route path="/groups/:id" element={<GroupDetailPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
-              {/* <Route path="/transactions" element={<TransactionsPage />} /> */}
+              <Route path="/transactions" element={<TransactionsPage />} />
             </Route>
           </Route>
 
