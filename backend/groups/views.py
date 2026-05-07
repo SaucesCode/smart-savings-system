@@ -35,7 +35,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             user_id=request.user.id,
                 defaults={
                     'role': 'member',
-                    'name': request.user.name
+                    'name': request.user.username
                 }
         )
         if not created:
@@ -60,7 +60,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             user_id=request.user.id,
                 defaults={
                     'role': 'member',
-                    'name': request.user.name
+                    'name': request.user.username
                 }
         )
 
