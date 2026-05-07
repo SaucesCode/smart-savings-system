@@ -13,30 +13,33 @@ import GroupsPage from "./pages/GroupPage";
 import GroupDetailPage from "./pages/GroupDetailPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import TransactionsPage from "./pages/TransactionsPage";
+import { ToastProvider } from "./context/ToastContext";
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          {/* Public */}
-          <Route path="/login" element={<LoginPage />} />
+        <ToastProvider>
+          <Routes>
+            {/* Public */}
+            <Route path="/login" element={<LoginPage />} />
 
-          {/* Protected — all share the sidebar Layout */}
-          <Route element={<ProtectedRoute />}>
-            <Route element={<Layout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/wallet" element={<WalletPage />} />
-              <Route path="/groups" element={<GroupsPage />} />
-              <Route path="/groups/:id" element={<GroupDetailPage />} />
-              <Route path="/analytics" element={<AnalyticsPage />} />
-              <Route path="/transactions" element={<TransactionsPage />} />
+            {/* Protected — all share the sidebar Layout */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<Layout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/wallet" element={<WalletPage />} />
+                <Route path="/groups" element={<GroupsPage />} />
+                <Route path="/groups/:id" element={<GroupDetailPage />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
+                <Route path="/transactions" element={<TransactionsPage />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   );

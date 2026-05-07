@@ -6,6 +6,7 @@ import GroupCard from "../components/GroupCard";
 import CreateGroupModal from "../components/CreateGroupModal";
 import JoinGroupModal from "../components/JoinGroupModal";
 import { Plus, UserPlus, Users, TrendingUp, Wallet, RefreshCw } from "lucide-react";
+import { Button } from "../components/ui";
 
 export default function GroupsPage() {
   const navigate = useNavigate();
@@ -52,20 +53,20 @@ const totalGoal = groups.reduce((sum, g) => sum + Number(g.savings_goal || 0), 0
           <p className="text-sm text-gray-400 mt-1">Save together, reach goals faster.</p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <button
+          <Button
             onClick={() => setJoinOpen(true)}
             className="flex items-center gap-2 text-sm font-semibold border border-gray-200 text-gray-600 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
           >
             <UserPlus size={15} strokeWidth={2.5} />
             Join Group
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setCreateOpen(true)}
             className="flex items-center gap-2 text-sm font-bold bg-violet text-white px-4 py-2.5 rounded-xl hover:bg-violet-dark transition-colors"
           >
             <Plus size={16} strokeWidth={2.5} />
             New Group
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -107,12 +108,12 @@ const totalGoal = groups.reduce((sum, g) => sum + Number(g.savings_goal || 0), 0
             <p className="text-sm font-semibold text-red-700">Failed to load groups</p>
             <p className="text-xs text-red-400 mt-0.5">{error}</p>
           </div>
-          <button
+          <Button
             onClick={fetchGroups}
             className="flex items-center gap-1.5 text-sm font-bold text-red-600 hover:text-red-800 transition-colors"
           >
             <RefreshCw size={14} /> Retry
-          </button>
+          </Button>
         </div>
       )}
 
@@ -188,18 +189,18 @@ function EmptyState({ onCreate, onJoin }) {
         Create a savings group with friends or family, or join one with a Group ID.
       </p>
       <div className="flex items-center gap-3 mt-6">
-        <button
+        <Button
           onClick={onJoin}
           className="flex items-center gap-2 text-sm font-semibold border border-gray-200 text-gray-600 px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
         >
           <UserPlus size={15} /> Join Group
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={onCreate}
           className="flex items-center gap-2 text-sm font-bold bg-violet text-white px-5 py-2.5 rounded-xl hover:bg-violet-dark transition-colors"
         >
           <Plus size={15} /> Create Group
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 //   group   — group object from the API
 //   index   — position in the list (drives gradient rotation)
 //   onClick — optional navigation callback
+import { useToast } from "../context/ToastContext";
 
 const GRADIENTS = [
   "from-teal to-teal-light",
@@ -12,6 +13,8 @@ const GRADIENTS = [
 ];
 
 export default function GroupCard({ group, index = 0, onClick }) {
+  const toast = useToast();
+
   const gradient = GRADIENTS[index % GRADIENTS.length];
 
   const progress =
@@ -48,9 +51,10 @@ export default function GroupCard({ group, index = 0, onClick }) {
 
         {group.invite_code && (
           <span
-            onClick={() => {
+            onClick={e => {
+              e.stopPropagation();
               navigator.clipboard.writeText(group.invite_code);
-              alert("Invite code copied!");
+              toast.success("Copied Successfully");
             }}
             className="cursor-pointer text-[10px] font-mono bg-gray-100 hover:bg-gray-200 text-gray-500 px-2 py-1 rounded-lg"
           >

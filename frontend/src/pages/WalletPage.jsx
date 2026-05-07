@@ -14,6 +14,7 @@ import { getTransactions } from "../api/transactions";
 import GCashDepositModal from "../components/GCashDepositModal";
 import WithdrawalModal from "../components/WithdrawalModal";
 import GCashDetailsEditor from "../components/GCashDetailsEditor";
+import { Button } from "../components/ui";
 
 export default function WalletPage() {
   const [wallet, setWallet] = useState(null);
@@ -160,18 +161,18 @@ function WalletHeader({ wallet, onWalletUpdated, onDepositClick, onWithdrawClick
 
         {/* Action buttons */}
         <div className="flex gap-3 mt-7 relative">
-          <button
+          <Button
             onClick={onDepositClick}
             className="flex-1 flex items-center justify-center gap-2 bg-white text-violet font-bold text-sm rounded-xl py-2.5 hover:bg-violet-light hover:text-white transition-colors"
           >
             <span>⬇️</span> Deposit
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onWithdrawClick}
             className="flex-1 flex items-center justify-center gap-2 bg-white/20 text-white font-bold text-sm rounded-xl py-2.5 hover:bg-white/30 transition-colors border border-white/30"
           >
             <span>⬆️</span> Withdraw
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -194,12 +195,12 @@ function WalletHeader({ wallet, onWalletUpdated, onDepositClick, onWithdrawClick
           </div>
 
           {!editingGoal && (
-            <button
+            <Button
               onClick={() => setEditingGoal(true)}
               className="text-sm font-semibold text-violet hover:text-violet-dark transition-colors"
             >
               {wallet.savings_goal ? "Edit goal" : "+ Set goal"}
-            </button>
+            </Button>
           )}
         </div>
 
@@ -223,20 +224,20 @@ function WalletHeader({ wallet, onWalletUpdated, onDepositClick, onWithdrawClick
             {goalError && <p className="text-xs text-red-500">{goalError}</p>}
 
             <div className="flex gap-2">
-              <button
+              <Button
                 onClick={handleSaveGoal}
                 disabled={saving}
                 className="flex-1 bg-violet text-white text-sm font-bold rounded-xl py-2.5 hover:bg-violet-dark transition-colors disabled:opacity-60"
               >
                 {saving ? "Saving..." : "Save Goal"}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleCancelGoal}
                 disabled={saving}
                 className="flex-1 border border-gray-200 text-gray-500 text-sm font-semibold rounded-xl py-2.5 hover:bg-gray-50 transition-colors"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -312,23 +313,23 @@ function TransactionHistory({ newTx }) {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
-          <button
+          <Button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
             className="text-sm font-semibold text-violet disabled:opacity-30 hover:text-violet-dark transition-colors"
           >
             ← Previous
-          </button>
+          </Button>
           <span className="text-xs text-gray-400">
             Page {page} of {totalPages}
           </span>
-          <button
+          <Button
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             className="text-sm font-semibold text-violet disabled:opacity-30 hover:text-violet-dark transition-colors"
           >
             Next →
-          </button>
+          </Button>
         </div>
       )}
     </div>
@@ -440,12 +441,12 @@ function ErrorBanner({ message, onRetry }) {
         <p className="text-sm font-semibold text-red-700">Failed to load wallet</p>
         <p className="text-xs text-red-400 mt-0.5">{message}</p>
       </div>
-      <button
+      <Button
         onClick={onRetry}
         className="text-sm font-bold text-red-600 hover:text-red-800 transition-colors"
       >
         Retry
-      </button>
+      </Button>
     </div>
   );
 }

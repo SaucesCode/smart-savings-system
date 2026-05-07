@@ -7,6 +7,7 @@ import { getGroups } from "../api/groups";
 import WalletCard from "../components/WalletCard";
 import GroupCard from "../components/GroupCard";
 import RecentTransactions from "../components/RecentTransactions";
+import { Button } from "../components/ui";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -69,12 +70,12 @@ export default function Dashboard() {
       <section>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold text-gray-800">My Groups</h2>
-          <button
+          <Button
             onClick={() => navigate("/groups")}
             className="text-sm font-semibold bg-violet text-white px-4 py-2 rounded-xl hover:bg-violet-dark transition-colors"
           >
             + New Group
-          </button>
+          </Button>
         </div>
 
         {loadingGroups ? (
