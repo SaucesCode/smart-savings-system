@@ -40,7 +40,7 @@ class GroupTransactionSerializer(serializers.ModelSerializer):
             'gcash_reference', 'gcash_screenshot_url', 'note',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'user_id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'group', 'user_id', 'created_at', 'updated_at']
 
     def update(self, instance, validated_data):
         new_status = validated_data.get('status', instance.status)

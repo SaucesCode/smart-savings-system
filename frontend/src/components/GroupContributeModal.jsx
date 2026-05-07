@@ -20,6 +20,8 @@ import {
   Handshake,
   Target,
 } from "lucide-react";
+import { uploadScreenshot } from "../lib/uploadScreenshot";
+import { useAuth } from "../context/AuthContext";
 
 const GCASH_NUMBER = import.meta.env.VITE_GCASH_NUMBER || "09XX XXX XXXX";
 const GCASH_NAME = import.meta.env.VITE_GCASH_NAME || "SmartSave Admin";
@@ -35,10 +37,14 @@ const STEP_LABELS = {
 };
 
 export default function GroupContributeModal({ isOpen, onClose, onSuccess, group }) {
+  const { user } = useAuth();
+
   const [step, setStep] = useState(STEP_AMOUNT);
   const [amount, setAmount] = useState("");
   const [refNumber, setRefNumber] = useState("");
-  const [screenshotUrl, setScreenshotUrl] = useState("");
+  const [screenshotFile, setScreenshotFile] = useState(null);
+  const [screenshotPreview, setScreenshotPreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
@@ -65,24 +71,42 @@ export default function GroupContributeModal({ isOpen, onClose, onSuccess, group
       setErrors({ ref: "Please enter your GCash reference number." });
       return;
     }
-    if (refNumber.trim().length < 6) {
-      setErrors({ ref: "Reference number looks too short. Please check." });
-      return;
-    }
+
     setErrors({});
     setSubmitting(true);
+
     try {
-      const tx = await createGroupTransaction(group.id, {
+      let screenshotUrl = "";
+
+      if (screenshotFile) {
+        setUploading(true);
+        screenshotUrl = await uploadScreenshot(screenshotFile, user.id);
+        setUploading(false);
+      }
+
+      const payload = {
         amount: parseFloat(amount),
         gcash_reference: refNumber.trim(),
-        gcash_screenshot_url: screenshotUrl.trim(),
+        gcash_screenshot_url: screenshotUrl,
         note: note.trim(),
-      });
-      console.log(tx);
+      };
+
+      const tx = await createGroupTransaction(group.id, payload);
+
       onSuccess(tx);
       handleClose();
     } catch (err) {
-      setErrors({ submit: err.message });
+      console.error("BACKEND ERROR:", err);
+
+      // axios backend response
+      console.error("Response data:", err.response?.data);
+
+      setErrors({
+        submit:
+          err.response?.data?.detail || JSON.stringify(err.response?.data) || err.message,
+      });
+
+      setUploading(false);
     } finally {
       setSubmitting(false);
     }
@@ -92,7 +116,9 @@ export default function GroupContributeModal({ isOpen, onClose, onSuccess, group
     setStep(STEP_AMOUNT);
     setAmount("");
     setRefNumber("");
-    setScreenshotUrl("");
+    setScreenshotFile(null);
+    setScreenshotPreview(null);
+    setUploading(false);
     setNote("");
     setErrors({});
     setSubmitting(false);
@@ -179,8 +205,11 @@ export default function GroupContributeModal({ isOpen, onClose, onSuccess, group
               groupName={group.name}
               refNumber={refNumber}
               setRefNumber={setRefNumber}
-              screenshotUrl={screenshotUrl}
-              setScreenshotUrl={setScreenshotUrl}
+              screenshotFile={screenshotFile}
+              screenshotPreview={screenshotPreview}
+              setScreenshotFile={setScreenshotFile}
+              setScreenshotPreview={setScreenshotPreview}
+              uploading={uploading}
               note={note}
               setNote={setNote}
               errors={errors}
@@ -401,8 +430,11 @@ function StepReference({
   groupName,
   refNumber,
   setRefNumber,
-  screenshotUrl,
-  setScreenshotUrl,
+  screenshotFile,
+  screenshotPreview,
+  setScreenshotFile,
+  setScreenshotPreview,
+  uploading,
   note,
   setNote,
   errors,
@@ -446,21 +478,53 @@ function StepReference({
         </p>
       </div>
 
+      {/* Screenshot upload */}
       <div>
         <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-          Screenshot URL{" "}
-          <span className="text-gray-300 font-normal normal-case">(optional)</span>
+          GCash Screenshot{" "}
+          <span className="text-gray-300 font-normal normal-case">
+            (optional but recommended)
+          </span>
         </label>
-        <input
-          type="url"
-          value={screenshotUrl}
-          onChange={e => setScreenshotUrl(e.target.value)}
-          placeholder="https://... (link to your GCash screenshot)"
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal/40 focus:border-teal transition"
-        />
-        <p className="text-xs text-gray-400 mt-1.5">
-          Upload your screenshot to Google Drive, Imgur, etc. and paste the link here.
-        </p>
+
+        {/* Preview */}
+        {screenshotPreview && (
+          <div className="relative mb-3">
+            <img
+              src={screenshotPreview}
+              alt="Screenshot preview"
+              className="w-full max-h-40 object-contain rounded-xl border border-gray-100 bg-gray-50"
+            />
+            <button
+              onClick={() => {
+                setScreenshotFile(null);
+                setScreenshotPreview(null);
+              }}
+              className="absolute top-2 right-2 bg-white rounded-full p-1 shadow text-gray-400 hover:text-red-500 transition-colors"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
+
+        {/* File input */}
+        {!screenshotPreview && (
+          <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-teal hover:bg-teal/5 transition-colors">
+            <Smartphone size={20} className="text-gray-300 mb-1" />
+            <span className="text-xs text-gray-400 font-medium">Tap to upload screenshot</span>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                setScreenshotFile(file);
+                setScreenshotPreview(URL.createObjectURL(file));
+              }}
+            />
+          </label>
+        )}
       </div>
 
       <div>
@@ -490,7 +554,8 @@ function StepReference({
       >
         {submitting ? (
           <>
-            <span className="animate-spin inline-block">⏳</span> Submitting...
+            <span className="animate-spin inline-block">⏳</span>
+            {uploading ? "Uploading screenshot..." : "Submitting..."}
           </>
         ) : (
           <>
